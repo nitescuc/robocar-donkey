@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block content %}
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  
+  <div class="container">
+    <div class="row">      
+      <div class="col-xs-12 col-sm-12 col-md-12"><!-- center column -->
+        <div class="thumbnail">
+          <img id='mpeg-image', class='img-responsive' src="/video"/> </img>
+        </div>
+      </div><!-- end center column -->
+    </div>
+  </div> <!-- END Container -->
+
+  <footer class="footer" id="vehicle_footer">
+    <div class="container">
+      <div class="row">
+        <div class="col-xs-12 col-sm-12 col-md-12">
+        </div>
+      </div>
+    </div>
+  </footer>
+
+
+
+<script type="text/javascript">
+  $( document ).ready(function() {
+    console.log( "document ready!" );
+    driveHandler.load()
+  });
+</script>
+
+{% end %}
