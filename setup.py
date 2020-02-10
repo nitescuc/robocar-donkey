@@ -40,6 +40,7 @@ setup(name='donkeycar',
                       'moviepy',
                       'pyzmq',
                       'pandas',
+                      'paho-mqtt',
                      ],
 
     include_package_data=True,
