@@ -180,12 +180,13 @@ class PyGameWebcam(BaseCamera):
         time.sleep(.5)
 
 class CV2Webcam(BaseCamera):
-    def __init__(self, resolution = (120, 160), framerate = 20, brightness = 0, rotate = 0, processor = None):
+    def __init__(self, resolution = (120, 160), framerate = 20, brightness = 0, rotate = 0, channel=0, processor = None):
         super().__init__()
 
         self.resolution = resolution
         self.framerate = framerate
         self.processor = processor
+        self.channel = channel
 
         cam = self._create_cam()
         if not cam.isOpened():
@@ -201,12 +202,13 @@ class CV2Webcam(BaseCamera):
         print('WebcamVideoStream loaded.. .warming camera')
 
     def _create_cam(self):
-        return cv2.VideoCapture(0)
+        return cv2.VideoCapture(self.channel)
 
     def _readFrame(self):
         ret, frame = self.cam.read()
         if ret:
             frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+            frame = cv2.resize(np.asarray(frame), (self.resolution[1], self.resolution[0]))
             if self.processor != None:
                 frame = self.processor.processFrame(frame)
             return frame

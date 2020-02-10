@@ -30,7 +30,7 @@ setup(name='donkeycar',
     install_requires=['numpy', 
                       'pillow',
                       'docopt',
-                      'tornado',
+                      'tornado=4.2',
                       'requests',
                       'keras',
                       'h5py',
@@ -38,17 +38,9 @@ setup(name='donkeycar',
                       'flask',
                       'eventlet',
                       'moviepy',
-                      'pandas',
-                      'tensorflow>=2',
                       'pyzmq',
-                      'opencv-python',
+                      'pandas',
                      ],
-
-    extras_require={
-                    'pi': [
-                        'picamera',
-                        ]
-                    },
 
     include_package_data=True,
 
