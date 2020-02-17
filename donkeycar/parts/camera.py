@@ -81,20 +81,18 @@ class PiCamera(BaseCamera):
         self.camera.close()
 
 class Webcam(BaseCamera):
-    def __init__(self, resolution = (120, 160), framerate = 20, brightness = 0, rotate = 0, processor = None):
+    def __init__(self, resolution = (120, 160), framerate = 20, brightness = 0, rotate = 0, processor = None, channel = 0):
         from PyV4L2Camera.camera import Camera
         from PyV4L2Camera.controls import ControlIDs
 
         super().__init__()
 
-        self.cam = Camera('/dev/video0', 640, 480)
+        self.cam = Camera('/dev/video' + str(channel), 256, 144)
         self.resolution = resolution
         self.framerate = framerate
         self.brightness = brightness
         self.rotate = rotate
-
-#        self.cam.set_control_value(ControlIDs.BRIGHTNESS, self.brightness)
-#        self.cam.set_control_value(ControlIDs.CONTRAST, 20)
+        self.processor = processor
 
         # initialize variable used to indicate
         # if the thread should be stopped
@@ -106,18 +104,16 @@ class Webcam(BaseCamera):
     def update(self):
         from datetime import datetime, timedelta
         while self.on:
-            start = datetime.now()
-
             frame = self.cam.get_frame()
             im = Image.frombytes('RGB', (self.cam.width, self.cam.height), frame, 'raw', 'RGB')
-            self.frame = cv2.resize(np.asarray(im), (self.resolution[1], self.resolution[0]))
+            frame = cv2.resize(np.asarray(im), (self.resolution[1], self.resolution[0]))
+            frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
             if self.rotate: 
-                self.frame = cv2.rotate(self.frame, rotateCode=cv2.ROTATE_180)
+                frame = cv2.rotate(frame, rotateCode=cv2.ROTATE_180)
+            if self.processor != None:
+                frame = self.processor.processFrame(frame)
+            self.frame = frame
 
-            stop = datetime.now()
-            s = 1 / self.framerate - (stop - start).total_seconds()
-#            if s > 0:
-#                time.sleep(s)
         self.cam.close()
 
     def shutdown(self):
