@@ -44,6 +44,7 @@ from donkeycar.parts.datastore import TubHandler, TubGroup
 from donkeycar.parts.udp_actuator_emitter import UdpActuatorEmitter
 from donkeycar.parts.zmq_config_client import ZmqConfigClient
 from donkeycar.parts.udp_remote_receiver import UdpRemoteReceiver
+from donkeycar.parts.mqtt_config_client import MqttConfigClient
 from donkeycar.parts.web_fpv.web import FPVWebController
 
 from sys import platform
@@ -61,6 +62,9 @@ def drive(cfg):
 
     # Initialize car
     V = dk.vehicle.Vehicle()
+
+    mqtt = MqttConfigClient()
+    V.add(mqtt, outputs=['config', 'user/mode'], threaded=True)
 
     def apply_config(config):
         if config != None:
@@ -110,7 +114,7 @@ def record(cfg):
     cam = SimpleRealSense435i(resolution=cfg.CAMERA_RESOLUTION, framerate=cfg.CAMERA_FRAMERATE)
     V.add(cam, outputs=['cam/image_array'], threaded=True, can_apply_config=True)
 
-    ctr = UdpRemoteReceiver(remote=cfg.ZMQ_REMOTE)
+    ctr = UdpRemoteReceiver(port=5001)
     V.add(ctr, 
         inputs=[],
         outputs=['user/angle', 'user/throttle', 'recording'],
