@@ -35,7 +35,7 @@ from docopt import docopt
 import donkeycar as dk
 
 # import parts
-from donkeycar.parts.camera import JetsonCV2Webcam
+from donkeycar.parts.simple_realsense435i import SimpleRealSense435i
 from donkeycar.parts.camera_calibrate import ImageCalibrate
 from donkeycar.parts.preprocess import ImageProcessor
 from donkeycar.parts.transform import Lambda
@@ -44,9 +44,7 @@ from donkeycar.parts.datastore import TubHandler, TubGroup
 from donkeycar.parts.udp_actuator_emitter import UdpActuatorEmitter
 from donkeycar.parts.zmq_config_client import ZmqConfigClient
 from donkeycar.parts.udp_remote_receiver import UdpRemoteReceiver
-from donkeycar.parts.control_api import APIController
 from donkeycar.parts.web_fpv.web import FPVWebController
-from donkeycar.parts.throttle_controller import ThrottleController
 
 from sys import platform
 
@@ -64,9 +62,6 @@ def drive(cfg):
     # Initialize car
     V = dk.vehicle.Vehicle()
 
-    ctr = APIController()
-    V.add(ctr, outputs=['user/mode', 'recording', 'config'], threaded=True)
-
     def apply_config(config):
         if config != None:
             V.apply_config(config)
@@ -74,8 +69,8 @@ def drive(cfg):
     V.add(apply_config_part, inputs=['config'])
 
     preprocess = ImageProcessor(resolution=cfg.CAMERA_RESOLUTION, applyClahe=False, applyBlur=False)
-    cam = JetsonCV2Webcam(resolution=cfg.CAMERA_RESOLUTION, framerate=cfg.CAMERA_FRAMERATE, processor=preprocess)
-    V.add(cam, outputs=['cam/image_array'], threaded=True, can_apply_config=True)
+    cam = SimpleRealSense435i(resolution=cfg.CAMERA_RESOLUTION, framerate=cfg.CAMERA_FRAMERATE, processor=preprocess)
+    V.add(cam, outputs=['cam/image_array', 'cam/depth_array'], threaded=True, can_apply_config=True)
 
     ctr = UdpRemoteReceiver(port=5001)
     V.add(ctr, 
@@ -97,14 +92,6 @@ def drive(cfg):
         outputs=['pilot/angle', 'pilot/throttle'],
         run_condition='run_pilot', threaded=False, can_apply_config=True)
 
-    ctr = ThrottleController(slow_throttle=cfg.SLOW_THROTTLE, medium_throttle=cfg.MEDIUM_THROTTLE, fast_throttle=cfg.FAST_THROTTLE,
-        slow_rpm=cfg.SLOW_RPM, medium_rpm=cfg.MEDIUM_RPM, break_intensity=cfg.BREAK_INTENSITY)
-    V.add(ctr,
-        inputs=['pilot/throttle', 'user/mode', 'rpm'],
-        outputs=['pilot/throttle'],
-        run_condition='run_pilot',
-        threaded=False, can_apply_config=True)
-
     ctr = UdpActuatorEmitter(remote_addr='10.42.0.99', remote_port=5001)
     V.add(ctr, 
         inputs=['pilot/angle', 'pilot/throttle', 'user/mode'],
@@ -120,7 +107,7 @@ def drive(cfg):
 def record(cfg):
     V = dk.vehicle.Vehicle()
 
-    cam = JetsonCV2Webcam(resolution=cfg.CAMERA_RESOLUTION, framerate=cfg.CAMERA_FRAMERATE)
+    cam = SimpleRealSense435i(resolution=cfg.CAMERA_RESOLUTION, framerate=cfg.CAMERA_FRAMERATE)
     V.add(cam, outputs=['cam/image_array'], threaded=True, can_apply_config=True)
 
     ctr = UdpRemoteReceiver(remote=cfg.ZMQ_REMOTE)
@@ -146,8 +133,8 @@ def calibrate(cfg):
     # Initialize car
     V = dk.vehicle.Vehicle()
 
-    cam = JetsonCV2Webcam(resolution=(480, 640), framerate=cfg.CAMERA_FRAMERATE)
-    V.add(cam, outputs=['cam/image_array'], threaded=True)
+    cam = SimpleRealSense435i(resolution=(480, 640), framerate=cfg.CAMERA_FRAMERATE)
+    V.add(cam, outputs=['cam/image_array', 'cam/depth_array'], threaded=True)
     calibrate = ImageCalibrate((480,640))
     V.add(calibrate, inputs=['cam/image_array'], outputs=['cam/image_array'], threaded=False)
 
