@@ -35,7 +35,7 @@ from docopt import docopt
 import donkeycar as dk
 
 # import parts
-from donkeycar.parts.simple_realsense435i import SimpleRealSense435i
+from donkeycar.parts.simple_realsense435i import SimpleRealsense435i
 from donkeycar.parts.camera_calibrate import ImageCalibrate
 from donkeycar.parts.preprocess import ImageProcessor
 from donkeycar.parts.transform import Lambda
@@ -73,7 +73,7 @@ def drive(cfg):
     V.add(apply_config_part, inputs=['config'])
 
     preprocess = ImageProcessor(resolution=cfg.CAMERA_RESOLUTION, applyClahe=False, applyBlur=False)
-    cam = SimpleRealSense435i(resolution=cfg.CAMERA_RESOLUTION, framerate=cfg.CAMERA_FRAMERATE, processor=preprocess)
+    cam = SimpleRealsense435i(resolution=cfg.CAMERA_RESOLUTION, framerate=cfg.CAMERA_FRAMERATE, processor=preprocess)
     V.add(cam, outputs=['cam/image_array', 'cam/depth_array'], threaded=True, can_apply_config=True)
 
     ctr = UdpRemoteReceiver(port=5001)
@@ -111,7 +111,7 @@ def drive(cfg):
 def record(cfg):
     V = dk.vehicle.Vehicle()
 
-    cam = SimpleRealSense435i(resolution=cfg.CAMERA_RESOLUTION, framerate=cfg.CAMERA_FRAMERATE)
+    cam = SimpleRealsense435i(resolution=cfg.CAMERA_RESOLUTION, framerate=cfg.CAMERA_FRAMERATE)
     V.add(cam, outputs=['cam/image_array'], threaded=True, can_apply_config=True)
 
     ctr = UdpRemoteReceiver(port=5001)
@@ -137,7 +137,7 @@ def calibrate(cfg):
     # Initialize car
     V = dk.vehicle.Vehicle()
 
-    cam = SimpleRealSense435i(resolution=(480, 640), framerate=cfg.CAMERA_FRAMERATE)
+    cam = SimpleRealsense435i(resolution=(480, 640), framerate=cfg.CAMERA_FRAMERATE)
     V.add(cam, outputs=['cam/image_array', 'cam/depth_array'], threaded=True)
     calibrate = ImageCalibrate((480,640))
     V.add(calibrate, inputs=['cam/image_array'], outputs=['cam/image_array'], threaded=False)
