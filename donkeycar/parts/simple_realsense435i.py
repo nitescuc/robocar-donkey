@@ -1,4 +1,4 @@
-from realsense435i import RealSense435i
+from donkeycar.parts.realsense435i import RealSense435i
 import cv2
 import numpy as np
 
