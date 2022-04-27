@@ -1,7 +1,7 @@
-from keras.layers import Input, Dense, merge
-from keras.models import Model
-from keras.layers import Convolution2D, MaxPooling2D, Reshape, BatchNormalization
-from keras.layers import Activation, Dropout, Flatten, Dense
+from tensorflow.keras.layers import Input, Dense
+from tensorflow.keras.models import Model
+from tensorflow.keras.layers import Convolution2D, MaxPooling2D, Reshape, BatchNormalization
+from tensorflow.keras.layers import Activation, Dropout, Flatten, Dense
 
 def NVidia():
     img_in = Input(shape=(120, 160, 1), name='img_in')                      # First layer, input layer, Shape comes from camera.py resolution, RGB

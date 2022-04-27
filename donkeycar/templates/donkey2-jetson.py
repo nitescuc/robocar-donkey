@@ -42,7 +42,6 @@ from donkeycar.parts.transform import Lambda
 from donkeycar.parts.keras import KerasCategorical
 from donkeycar.parts.datastore import TubHandler, TubGroup
 from donkeycar.parts.udp_actuator_emitter import UdpActuatorEmitter
-from donkeycar.parts.zmq_config_client import ZmqConfigClient
 from donkeycar.parts.udp_remote_receiver import UdpRemoteReceiver
 from donkeycar.parts.mqtt_config_client import MqttConfigClient
 from donkeycar.parts.web_fpv.web import FPVWebController
@@ -112,7 +111,7 @@ def record(cfg):
     V = dk.vehicle.Vehicle()
 
     cam = SimpleRealsense435i(resolution=cfg.CAMERA_RESOLUTION, framerate=cfg.CAMERA_FRAMERATE)
-    V.add(cam, outputs=['cam/image_array'], threaded=True, can_apply_config=True)
+    V.add(cam, outputs=['cam/image_array', 'cam/depth_array'], threaded=True, can_apply_config=True)
 
     ctr = UdpRemoteReceiver(port=5001)
     V.add(ctr, 
