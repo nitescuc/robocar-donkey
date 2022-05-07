@@ -76,7 +76,7 @@ class RealSense435i(object):
                 config.enable_device(self.device_id)
 
             if self.enable_depth:
-                config.enable_stream(rs.stream.depth, 848, 480, rs.format.z16, 60)  # depth
+                config.enable_stream(rs.stream.depth, 256, 144, rs.format.z16, 90)  # depth
 
             if self.enable_rgb:
                 config.enable_stream(rs.stream.color, 424, 240, rs.format.rgb8, 60)  # rgb
@@ -148,19 +148,23 @@ class RealSense435i(object):
         #
         if self.enable_rgb or self.enable_depth:
             # Align the depth frame to color frame
-            aligned_frames = self.align.process(frames) if self.enable_depth and self.enable_rgb else None
-            depth_frame = aligned_frames.get_depth_frame() if aligned_frames is not None else frames.get_depth_frame()
-            color_frame = aligned_frames.get_color_frame() if aligned_frames is not None else frames.get_color_frame()
+#            aligned_frames = self.align.process(frames) if self.enable_depth and self.enable_rgb else None
+#            depth_frame = aligned_frames.get_depth_frame() if aligned_frames is not None else frames.get_depth_frame()
+#            color_frame = aligned_frames.get_color_frame() if aligned_frames is not None else frames.get_color_frame()
+            depth_frame = frames.get_depth_frame()
+            color_frame = frames.get_color_frame()
 
             # Convert depth to 16bit array, RGB into 8bit planar array
-            self.depth_image = np.asanyarray(depth_frame.get_data(), dtype=np.uint16) if self.enable_depth else None
-            self.color_image = np.asanyarray(color_frame.get_data(), dtype=np.uint8) if self.enable_rgb else None
+            if depth_frame is not None:
+                self.depth_image = np.asanyarray(depth_frame.get_data(), dtype=np.uint16) if self.enable_depth else None
+            if color_frame is not None:
+                self.color_image = np.asanyarray(color_frame.get_data(), dtype=np.uint8) if self.enable_rgb else None
 
             if self.resize:
                 import cv2
-                if self.width != WIDTH or self.height != HEIGHT:
-                    self.color_image = cv2.resize(self.color_image, (self.width, self.height), cv2.INTER_NEAREST) if self.enable_rgb else None
-                    self.depth_image = cv2.resize(self.depth_image, (self.width, self.height), cv2.INTER_NEAREST) if self.enable_depth else None
+                #if self.width != WIDTH or self.height != HEIGHT:
+                #    self.color_image = cv2.resize(self.color_image, (self.width, self.height), cv2.INTER_NEAREST) if self.enable_rgb else None
+                #    self.depth_image = cv2.resize(self.depth_image, (self.width, self.height), cv2.INTER_NEAREST) if self.enable_depth else None
                 if self.channels != CHANNELS:
                     self.color_image = cv2.cvtColor(self.color_image, cv2.COLOR_RGB2GRAY) if self.enable_rgb else None
 
