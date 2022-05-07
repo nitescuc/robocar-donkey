@@ -25,7 +25,7 @@ class KerasPilot():
  
     def load(self, model_path):
         print('KERAS loading model: ' + model_path)
-        self.model = NVidia()
+        self.model = NVidia(angle_out_dim=31)
         if model_path.endswith('.h5'):
             self.model.load_weights(model_path)
         else:

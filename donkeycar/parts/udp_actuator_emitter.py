@@ -2,6 +2,9 @@ import sys
 import time
 import socket
 
+STEERING_SAMPLES = 31
+THROTTLE_SAMPLES = 15
+
 class UdpActuatorEmitter():
     def __init__(self, remote_addr, remote_port):
         #  Socket to talk to server
@@ -18,8 +21,8 @@ class UdpActuatorEmitter():
             throttle = 7
         if mode == None:
             mode = 'user'
-        remap_angle = angle * (2/14) - 1
-        remap_throttle = throttle * (2/14) - 1
+        remap_angle = angle * (2/(STEERING_SAMPLES-1)) - 1
+        remap_throttle = throttle * (2/(THROTTLE_SAMPLES - 1)) - 1
         bytesToSend = ("{:01.4f};{:01.4f};{}".format(remap_angle, remap_throttle, mode)).encode()
         self.socket.sendto(bytesToSend, (self.remote_addr, self.remote_port))
 

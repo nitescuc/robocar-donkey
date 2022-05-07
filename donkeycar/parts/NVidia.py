@@ -3,7 +3,7 @@ from tensorflow.keras.models import Model
 from tensorflow.keras.layers import Convolution2D, MaxPooling2D, Reshape, BatchNormalization
 from tensorflow.keras.layers import Activation, Dropout, Flatten, Dense
 
-def NVidia():
+def NVidia(angle_out_dim=15,throttle_out_dim=7):
     img_in = Input(shape=(120, 160, 1), name='img_in')                      # First layer, input layer, Shape comes from camera.py resolution, RGB
     x = img_in
     x = Convolution2D(24, (5,5), strides=(2,2), activation='relu')(x)       # 24 features, 5 pixel x 5 pixel kernel (convolution, feauture) window, 2wx2h stride, relu activation
@@ -20,7 +20,7 @@ def NVidia():
     x = Dropout(.1)(x)
     x = Dense(50, activation='relu')(x)
     x = Dropout(.1)(x)                                                      # Randomly drop out 10% of the neurons (Prevent overfitting)
-    angle_out = Dense(15, activation='softmax', name='angle_out')(x)        # Connect every input with every output and output 15 hidden units. Use Softmax to give percentage. 15 categories and find best one based off percentage 0.0-1.0
-    throttle_out = Dense(7, activation='softmax', name='throttle_out')(x)        # Connect every input with every output and output 15 hidden units. Use Softmax to give percentage. 15 categories and find best one based off percentage 0.0-1.0
+    angle_out = Dense(angle_out_dim, activation='softmax', name='angle_out')(x)        # Connect every input with every output and output 15 hidden units. Use Softmax to give percentage. 15 categories and find best one based off percentage 0.0-1.0
+    throttle_out = Dense(throttle_out_dim, activation='softmax', name='throttle_out')(x)        # Connect every input with every output and output 15 hidden units. Use Softmax to give percentage. 15 categories and find best one based off percentage 0.0-1.0
 
     return Model(inputs=[img_in], outputs=[angle_out, throttle_out])
