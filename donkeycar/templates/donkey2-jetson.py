@@ -98,10 +98,18 @@ def drive(cfg):
     ctr = UdpActuatorEmitter(remote_addr='10.42.0.99', remote_port=5001)
     V.add(ctr, 
         inputs=['pilot/angle', 'pilot/throttle', 'user/mode'],
-        outputs=[],
+        outputs=['pilot/angle', 'pilot/throttle'],
         run_condition='run_pilot', threaded=False, can_apply_config=False)
 
-    print("You can now go to <your pi ip address>:8887 to drive your car.")
+    # add tub to save data
+    inputs = ['cam/image_array', 'pilot/angle', 'pilot/throttle']
+    types = ['image_array', 'float', 'float']
+
+    th = TubHandler(path=cfg.DATA_PATH)
+    tub = th.new_tub_writer(inputs=inputs, types=types)
+    V.add(tub, inputs=inputs, run_condition='recording')
+
+    print("Started")
 
     # run the vehicle for 20 seconds
     V.start(rate_hz=cfg.DRIVE_LOOP_HZ, max_loop_count=cfg.MAX_LOOPS)
