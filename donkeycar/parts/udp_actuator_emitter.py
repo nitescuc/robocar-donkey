@@ -26,6 +26,8 @@ class UdpActuatorEmitter():
         bytesToSend = ("{:01.4f};{:01.4f};{}".format(remap_angle, remap_throttle, mode)).encode()
         self.socket.sendto(bytesToSend, (self.remote_addr, self.remote_port))
 
+        return remap_angle, remap_throttle
+
     def run_threaded(self, angle, throttle, mode):
         pass
 

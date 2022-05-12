@@ -21,11 +21,13 @@ from donkeycar.parts.NVidia import NVidia
 
 import donkeycar as dk
 
+dim_angle=31
+
 class KerasPilot():
  
     def load(self, model_path):
         print('KERAS loading model: ' + model_path)
-        self.model = NVidia(angle_out_dim=31)
+        self.model = NVidia(angle_out_dim=dim_angle)
         if model_path.endswith('.h5'):
             self.model.load_weights(model_path)
         else:
@@ -87,9 +89,7 @@ class KerasCategorical(KerasPilot):
             self.model = model
 
     def run(self, img_arr):
-        #img_arr = img_arr.reshape((1,) + img_arr.shape)
         img_arr = img_arr.reshape((1,120,160,1))
-        #print(img_arr.dtype)
         start = time.time()
         angle_binned, throttle_binned = self.model.predict(img_arr)
 #        print(time.time() - start)
