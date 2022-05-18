@@ -95,11 +95,12 @@ def drive(cfg):
         outputs=['pilot/angle', 'pilot/throttle'],
         run_condition='run_pilot', threaded=False, can_apply_config=True)
 
-    ctr = UdpActuatorEmitter(remote_addr='10.42.0.99', remote_port=5001)
+    ctr = UdpActuatorEmitter(remote_addr='10.42.0.99', remote_port=5001, 
+        slow_throttle=cfg.SLOW_THROTTLE, medium_throttle=cfg.MEDIUM_THROTTLE, fast_throttle=cfg.FAST_THROTTLE)
     V.add(ctr, 
         inputs=['pilot/angle', 'pilot/throttle', 'user/mode'],
         outputs=['pilot/angle', 'pilot/throttle'],
-        run_condition='run_pilot', threaded=False, can_apply_config=False)
+        run_condition='run_pilot', threaded=False, can_apply_config=True)
 
     # add tub to save data
     inputs = ['cam/image_array', 'pilot/angle', 'pilot/throttle']
