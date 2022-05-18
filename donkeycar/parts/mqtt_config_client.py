@@ -42,8 +42,8 @@ class MqttConfigClient():
                 self.mode = 'local_angle'
             else:
                 self.mode = 'user'
-            if 'recording' in data:
-                self.recording = data['recording']
+        if 'recording' in data:
+            self.recording = data['recording']
         self.config = data
 
     def run(self):
@@ -62,5 +62,5 @@ class MqttConfigClient():
         # indicate that the thread should be stopped
         self.on = False
         print('stoping MqttConfig')
-        self.subscriber.close()
+#        self.subscriber.close()
         self.context.term()
