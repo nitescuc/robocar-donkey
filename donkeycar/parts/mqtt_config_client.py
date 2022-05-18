@@ -8,6 +8,7 @@ class MqttConfigClient():
         self.host = host
         self.port = port
         self.mode = 'user'
+        self.recording = False
         self.config = None
 
         self.on = True
@@ -41,6 +42,8 @@ class MqttConfigClient():
                 self.mode = 'local_angle'
             else:
                 self.mode = 'user'
+            if 'recording' in data:
+                self.recording = data['recording']
         self.config = data
 
     def run(self):
@@ -49,7 +52,7 @@ class MqttConfigClient():
     def run_threaded(self):
         config = self.config
         self.config = None
-        return config, self.mode
+        return config, self.mode, self.recording
 
     def update(self):
         subscribe.callback(self.on_message, "config", hostname=self.host, port=self.port)

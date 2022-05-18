@@ -63,7 +63,7 @@ def drive(cfg):
     V = dk.vehicle.Vehicle()
 
     mqtt = MqttConfigClient()
-    V.add(mqtt, outputs=['config', 'user/mode'], threaded=True)
+    V.add(mqtt, outputs=['config', 'user/mode', 'recording'], threaded=True)
 
     def apply_config(config):
         if config != None:
@@ -78,7 +78,7 @@ def drive(cfg):
     ctr = UdpRemoteReceiver(port=5001)
     V.add(ctr, 
         inputs=[],
-        outputs=['user/angle', 'user/throttle', 'recording', 'rpm'],
+        outputs=['user/angle', 'user/throttle', 'has_trottle', 'rpm'],
         threaded=True, can_apply_config=False)
 
     def pilot_condition(mode):
