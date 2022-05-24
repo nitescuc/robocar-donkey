@@ -42,6 +42,7 @@ from donkeycar.parts.transform import Lambda
 from donkeycar.parts.keras import KerasCategorical
 from donkeycar.parts.datastore import TubHandler, TubGroup
 from donkeycar.parts.udp_actuator_emitter import UdpActuatorEmitter
+from donkeycar.parts.throttle_controller import ThrottleController
 from donkeycar.parts.udp_remote_receiver import UdpRemoteReceiver
 from donkeycar.parts.mqtt_config_client import MqttConfigClient
 from donkeycar.parts.web_fpv.web import FPVWebController
@@ -95,12 +96,17 @@ def drive(cfg):
         outputs=['pilot/angle', 'pilot/throttle'],
         run_condition='run_pilot', threaded=False, can_apply_config=True)
 
-    ctr = UdpActuatorEmitter(remote_addr='10.42.0.99', remote_port=5001, 
-        slow_throttle=cfg.SLOW_THROTTLE, medium_throttle=cfg.MEDIUM_THROTTLE, fast_throttle=cfg.FAST_THROTTLE)
+    ctr = ThrottleController(slow_throttle=cfg.SLOW_THROTTLE, medium_throttle=cfg.MEDIUM_THROTTLE, fast_throttle=cfg.FAST_THROTTLE)
     V.add(ctr, 
-        inputs=['pilot/angle', 'pilot/throttle', 'user/mode'],
+        inputs=['pilot/angle', 'pilot/throttle', 'cam/depth_array'],
         outputs=['pilot/angle', 'pilot/throttle'],
         run_condition='run_pilot', threaded=False, can_apply_config=True)
+
+    ctr = UdpActuatorEmitter(remote_addr='10.42.0.99', remote_port=5001)
+    V.add(ctr, 
+        inputs=['pilot/angle', 'pilot/throttle', 'user/mode'],
+        outputs=[],
+        run_condition='run_pilot', threaded=False, can_apply_config=False)
 
     # add tub to save data
     inputs = ['cam/image_array', 'pilot/angle', 'pilot/throttle']
