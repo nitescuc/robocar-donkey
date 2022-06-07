@@ -5,7 +5,7 @@ import numpy as np
 
 class SimpleRealsense435i(RealSense435i):
     def __init__(self, resolution=(120, 160), framerate=20, brightness = 0, rotate = 0, enable_rgb=True, enable_depth=False, processor = None):
-        super().__init__(enable_rgb=True, enable_depth=True, enable_imu=False, width=424, height=240, channels=3)
+        super().__init__(enable_rgb=enable_rgb, enable_depth=enable_depth, enable_imu=False, width=424, height=240, channels=3)
         self.resolution = resolution
         self.framerate = framerate
         self.processor = processor

@@ -38,19 +38,20 @@ class ThrottleController():
         else:
             remap_throttle = self.medium_throttle
 
-        # ROI
-        cropped_map = distance_map[20:100,20:]
-        # get closest obstacle
-        distance = cropped_map.min()
-        if self.prev_distance is None:
+        if distance_map is not None:
+            # ROI
+            cropped_map = distance_map[20:100,20:]
+            # get closest obstacle
+            distance = cropped_map.min()
+            if self.prev_distance is None:
+                self.prev_distance = distance
+            # adjust speed
+            if distance < 0.2:
+                remap_throttle = 0
+            elif distance < 0.5 and distance < self.prev_distance:
+                correction = 1 - (self.prev_distance - distance)/self.prev_distance
+                remap_throttle = remap_throttle * correction
             self.prev_distance = distance
-        # adjust speed
-        if distance < 0.2:
-            remap_throttle = 0
-        elif distance < 0.5 and distance < self.prev_distance:
-            correction = 1 - (self.prev_distance - distance)/self.prev_distance
-            remap_throttle = remap_throttle * correction
-        self.prev_distance = distance
 
         return remap_angle, remap_throttle
 

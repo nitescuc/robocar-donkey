@@ -162,9 +162,9 @@ class RealSense435i(object):
 
             if self.resize:
                 import cv2
-                #if self.width != WIDTH or self.height != HEIGHT:
-                #    self.color_image = cv2.resize(self.color_image, (self.width, self.height), cv2.INTER_NEAREST) if self.enable_rgb else None
-                #    self.depth_image = cv2.resize(self.depth_image, (self.width, self.height), cv2.INTER_NEAREST) if self.enable_depth else None
+                if self.width != WIDTH or self.height != HEIGHT:
+                   self.color_image = cv2.resize(self.color_image, (self.width, self.height), cv2.INTER_NEAREST) if self.enable_rgb else None
+                   self.depth_image = cv2.resize(self.depth_image, (self.width, self.height), cv2.INTER_NEAREST) if self.enable_depth else None
                 if self.channels != CHANNELS:
                     self.color_image = cv2.cvtColor(self.color_image, cv2.COLOR_RGB2GRAY) if self.enable_rgb else None
 
