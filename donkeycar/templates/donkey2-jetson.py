@@ -74,7 +74,7 @@ def drive(cfg):
     V.add(apply_config_part, inputs=['config'])
 
     preprocess = ImageProcessor(resolution=cfg.CAMERA_RESOLUTION, applyClahe=False, applyBlur=False)
-    cam = SimpleRealsense435i(resolution=cfg.CAMERA_RESOLUTION, framerate=cfg.CAMERA_FRAMERATE, processor=preprocess)
+    cam = SimpleRealsense435i(resolution=cfg.CAMERA_RESOLUTION, framerate=cfg.CAMERA_FRAMERATE, enable_depth=cfg.CAMERA_ENABLE_DEPTH, processor=preprocess)
     V.add(cam, outputs=['cam/image_array', 'cam/depth_array'], threaded=True, can_apply_config=True)
 
     ctr = UdpRemoteReceiver(port=5001)
@@ -126,7 +126,7 @@ def drive(cfg):
 def record(cfg):
     V = dk.vehicle.Vehicle()
 
-    cam = SimpleRealsense435i(resolution=cfg.CAMERA_RESOLUTION, framerate=cfg.CAMERA_FRAMERATE)
+    cam = SimpleRealsense435i(resolution=cfg.CAMERA_RESOLUTION, framerate=cfg.CAMERA_FRAMERATE, enable_depth=cfg.CAMERA_ENABLE_DEPTH)
     V.add(cam, outputs=['cam/image_array', 'cam/depth_array'], threaded=True, can_apply_config=True)
 
     ctr = UdpRemoteReceiver(port=5001)
@@ -152,7 +152,7 @@ def calibrate(cfg):
     # Initialize car
     V = dk.vehicle.Vehicle()
 
-    cam = SimpleRealsense435i(resolution=(480, 640), framerate=cfg.CAMERA_FRAMERATE)
+    cam = SimpleRealsense435i(resolution=(480, 640), framerate=cfg.CAMERA_FRAMERATE, enable_depth=cfg.CAMERA_ENABLE_DEPTH)
     V.add(cam, outputs=['cam/image_array', 'cam/depth_array'], threaded=True)
     calibrate = ImageCalibrate((480,640))
     V.add(calibrate, inputs=['cam/image_array'], outputs=['cam/image_array'], threaded=False)
@@ -171,7 +171,7 @@ def bench(cfg):
     V = dk.vehicle.Vehicle()
 
     preprocess = ImageProcessor(resolution=cfg.CAMERA_RESOLUTION, applyClahe=False, applyBlur=False)
-    cam = SimpleRealsense435i(resolution=cfg.CAMERA_RESOLUTION, framerate=cfg.CAMERA_FRAMERATE, processor=preprocess)
+    cam = SimpleRealsense435i(resolution=cfg.CAMERA_RESOLUTION, framerate=cfg.CAMERA_FRAMERATE, enable_depth=cfg.CAMERA_ENABLE_DEPTHgit, processor=preprocess)
     V.add(cam, outputs=['cam/image_array', 'cam/depth_array'], threaded=True)
 
     ctr = UdpRemoteReceiver(port=5001)
