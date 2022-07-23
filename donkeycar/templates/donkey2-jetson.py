@@ -170,7 +170,8 @@ def bench(cfg):
     # Initialize car
     V = dk.vehicle.Vehicle()
 
-    cam = SimpleRealsense435i(resolution=cfg.CAMERA_RESOLUTION, framerate=cfg.CAMERA_FRAMERATE)
+    preprocess = ImageProcessor(resolution=cfg.CAMERA_RESOLUTION, applyClahe=False, applyBlur=False)
+    cam = SimpleRealsense435i(resolution=cfg.CAMERA_RESOLUTION, framerate=cfg.CAMERA_FRAMERATE, processor=preprocess)
     V.add(cam, outputs=['cam/image_array', 'cam/depth_array'], threaded=True)
 
     ctr = UdpRemoteReceiver(port=5001)
