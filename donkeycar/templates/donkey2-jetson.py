@@ -37,6 +37,7 @@ import donkeycar as dk
 # import parts
 from donkeycar.parts.simple_realsense435i import SimpleRealsense435i
 from donkeycar.parts.camera_calibrate import ImageCalibrate
+from donkeycar.parts.camera_benchmark import CameraBenchmark
 from donkeycar.parts.preprocess import ImageProcessor
 from donkeycar.parts.transform import Lambda
 from donkeycar.parts.keras import KerasCategorical
@@ -73,7 +74,7 @@ def drive(cfg):
     V.add(apply_config_part, inputs=['config'])
 
     preprocess = ImageProcessor(resolution=cfg.CAMERA_RESOLUTION, applyClahe=False, applyBlur=False)
-    cam = SimpleRealsense435i(resolution=cfg.CAMERA_RESOLUTION, framerate=cfg.CAMERA_FRAMERATE, processor=preprocess)
+    cam = SimpleRealsense435i(resolution=cfg.CAMERA_RESOLUTION, framerate=cfg.CAMERA_FRAMERATE, enable_depth=cfg.CAMERA_ENABLE_DEPTH, processor=preprocess)
     V.add(cam, outputs=['cam/image_array', 'cam/depth_array'], threaded=True, can_apply_config=True)
 
     ctr = UdpRemoteReceiver(port=5001)
@@ -125,7 +126,7 @@ def drive(cfg):
 def record(cfg):
     V = dk.vehicle.Vehicle()
 
-    cam = SimpleRealsense435i(resolution=cfg.CAMERA_RESOLUTION, framerate=cfg.CAMERA_FRAMERATE)
+    cam = SimpleRealsense435i(resolution=cfg.CAMERA_RESOLUTION, framerate=cfg.CAMERA_FRAMERATE, enable_depth=cfg.CAMERA_ENABLE_DEPTH)
     V.add(cam, outputs=['cam/image_array', 'cam/depth_array'], threaded=True, can_apply_config=True)
 
     ctr = UdpRemoteReceiver(port=5001)
@@ -151,7 +152,7 @@ def calibrate(cfg):
     # Initialize car
     V = dk.vehicle.Vehicle()
 
-    cam = SimpleRealsense435i(resolution=(480, 640), framerate=cfg.CAMERA_FRAMERATE)
+    cam = SimpleRealsense435i(resolution=(480, 640), framerate=cfg.CAMERA_FRAMERATE, enable_depth=cfg.CAMERA_ENABLE_DEPTH)
     V.add(cam, outputs=['cam/image_array', 'cam/depth_array'], threaded=True)
     calibrate = ImageCalibrate((480,640))
     V.add(calibrate, inputs=['cam/image_array'], outputs=['cam/image_array'], threaded=False)
@@ -159,6 +160,32 @@ def calibrate(cfg):
     fpv = FPVWebController()
     V.add(fpv,
             inputs=['cam/image_array'],
+            threaded=True)        
+    # run the vehicle for 20 seconds
+    V.start(rate_hz=cfg.DRIVE_LOOP_HZ, max_loop_count=cfg.MAX_LOOPS)
+    print("You can now go to <your pi ip address>:8887 to drive your car.")
+
+
+def bench(cfg):
+    # Initialize car
+    V = dk.vehicle.Vehicle()
+
+    preprocess = ImageProcessor(resolution=cfg.CAMERA_RESOLUTION, applyClahe=False, applyBlur=False)
+    cam = SimpleRealsense435i(resolution=cfg.CAMERA_RESOLUTION, framerate=cfg.CAMERA_FRAMERATE, enable_depth=cfg.CAMERA_ENABLE_DEPTHgit, processor=preprocess)
+    V.add(cam, outputs=['cam/image_array', 'cam/depth_array'], threaded=True)
+
+    ctr = UdpRemoteReceiver(port=5001)
+    V.add(ctr, 
+        inputs=[],
+        outputs=['user/angle', 'user/throttle', 'recording'],
+        threaded=True, can_apply_config=False)
+
+    calibrate = CameraBenchmark()
+    V.add(calibrate, inputs=['cam/image_array', 'user/throttle'], outputs=['cam/bench_image_array'], threaded=False)
+
+    fpv = FPVWebController()
+    V.add(fpv,
+            inputs=['cam/bench_image_array'],
             threaded=True)        
     # run the vehicle for 20 seconds
     V.start(rate_hz=cfg.DRIVE_LOOP_HZ, max_loop_count=cfg.MAX_LOOPS)
@@ -178,6 +205,6 @@ if __name__ == '__main__':
     if args['calibrate']:
         calibrate(cfg)
 
-
-
+    if args['bench']:
+        bench(cfg)
 

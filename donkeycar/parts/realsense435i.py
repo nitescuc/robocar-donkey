@@ -76,7 +76,7 @@ class RealSense435i(object):
                 config.enable_device(self.device_id)
 
             if self.enable_depth:
-                config.enable_stream(rs.stream.depth, 256, 144, rs.format.z16, 90)  # depth
+                config.enable_stream(rs.stream.depth, 848, 100, rs.format.z16, 100)  # depth
 
             if self.enable_rgb:
                 config.enable_stream(rs.stream.color, 424, 240, rs.format.rgb8, 60)  # rgb
