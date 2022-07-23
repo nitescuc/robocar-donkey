@@ -37,6 +37,7 @@ import donkeycar as dk
 # import parts
 from donkeycar.parts.simple_realsense435i import SimpleRealsense435i
 from donkeycar.parts.camera_calibrate import ImageCalibrate
+from donkeycar.parts.camera_benchmark import CameraBenchmark
 from donkeycar.parts.preprocess import ImageProcessor
 from donkeycar.parts.transform import Lambda
 from donkeycar.parts.keras import KerasCategorical
@@ -165,6 +166,31 @@ def calibrate(cfg):
     print("You can now go to <your pi ip address>:8887 to drive your car.")
 
 
+def bench(cfg):
+    # Initialize car
+    V = dk.vehicle.Vehicle()
+
+    cam = SimpleRealsense435i(resolution=cfg.CAMERA_RESOLUTION, framerate=cfg.CAMERA_FRAMERATE)
+    V.add(cam, outputs=['cam/image_array', 'cam/depth_array'], threaded=True)
+
+    ctr = UdpRemoteReceiver(port=5001)
+    V.add(ctr, 
+        inputs=[],
+        outputs=['user/angle', 'user/throttle', 'recording'],
+        threaded=True, can_apply_config=False)
+
+    calibrate = CameraBenchmark()
+    V.add(calibrate, inputs=['cam/image_array', 'user/throttle'], outputs=['cam/bench_image_array'], threaded=False)
+
+    fpv = FPVWebController()
+    V.add(fpv,
+            inputs=['cam/bench_image_array'],
+            threaded=True)        
+    # run the vehicle for 20 seconds
+    V.start(rate_hz=cfg.DRIVE_LOOP_HZ, max_loop_count=cfg.MAX_LOOPS)
+    print("You can now go to <your pi ip address>:8887 to drive your car.")
+
+
 if __name__ == '__main__':
     args = docopt(__doc__)
     cfg = dk.load_config()
@@ -178,6 +204,6 @@ if __name__ == '__main__':
     if args['calibrate']:
         calibrate(cfg)
 
-
-
+    if args['bench']:
+        bench(cfg)
 
